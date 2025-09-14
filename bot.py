@@ -1,47 +1,29 @@
 import os
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
 
-# Wczytanie tokena z pliku .env
-load_dotenv()
+# Pobieranie tokena z zmiennych środowiskowych
 TOKEN = os.getenv("DISCORD_TOKEN")
+if not TOKEN:
+    raise ValueError("Brak tokena! Ustaw zmienną środowiskową DISCORD_TOKEN.")
 
-# Intents potrzebne do czytania wiadomości i członków
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
+# Prefix komend
+bot = commands.Bot(command_prefix="!")
 
-# Utworzenie bota
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-# EVENT: bot gotowy
+# Po zalogowaniu
 @bot.event
 async def on_ready():
     print(f'Zalogowano jako {bot.user}')
 
-# EVENT: powtarzanie wiadomości gracza
-@bot.event
-async def on_message(message):
-    # Ignorowanie własnych wiadomości bota
-    if message.author == bot.user:
-        return
+# Powtarzanie wiadomości gracza
+@bot.command()
+async def powtorz(ctx, *, wiadomosc):
+    await ctx.send(wiadomosc)
 
-    # Powtarzanie wszystkiego, co napisze gracz
-    await message.channel.send(f"{message.author.name} napisał: {message.content}")
-
-    # Pozwolenie na działanie komend
-    await bot.process_commands(message)
-
-# KOMENDA: ping
+# Prosta komenda testowa
 @bot.command()
 async def ping(ctx):
-    await ctx.send("Pong! 🏓")
-
-# KOMENDA: powiedz
-@bot.command()
-async def powiedz(ctx, *, tekst):
-    await ctx.send(tekst)
+    await ctx.send("Pong!")
 
 # Uruchomienie bota
 bot.run(TOKEN)
